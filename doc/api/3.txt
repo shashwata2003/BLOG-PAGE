@@ -1,0 +1,80 @@
+now we need to create roots for each user, catagory,post and also the authntication of the user 
+
+so to do that we need to use the router module of the express.
+
+in router we have multiple methods like:
+POST: posting new user or anything new to the server
+app.get() to handle GET requests and app.post to handle POST requests
+
+
+no as we are creating a roots for authntication. hence for this we need the username email and the password of the user. 
+
+we already created a model for that in the models which is the user one. hence we need to require that in here and create a post requests for the url register.
+
+now inside the post requests we need handle the errors hence we use the try and catch method. so now we are written everything in the try method.
+
+now we already have Schema of the user now we are going to collect that from the user via for, or something so to that we use this formate like:
+
+req.body.username or req.body.password or req.body.email
+
+this will help us to collect the data form the user .this a mongoose methods
+
+now to save the data in the server we use :
+
+const user=await newUser.save();
+res.status(200).json(user);
+
+
+and also all this go under the new user variable hence here we are creating a new user and saving the data to the database.
+
+we are going to test your api using the postman in which we can send request from your localhost link which the user inout of username email and the password and will check if the database server response to it. 
+
+full code of auth.js:
+const router=require("express").Router();
+const User =require("../models/User");
+
+//register
+router.post("/register", async (req, res) => {
+    try {
+        const newUser = new User({
+        username: req.body.username,
+        email: req.body.email,
+        password:req.body.password,
+      });
+  
+      const user = await newUser.save();
+      res.status(200).json(user);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  });
+
+//login
+
+module.exports = router
+
+
+
+FULL CODE OF INEX.JS:
+const express=require("express");
+const app=express();
+
+const dotenv=require("dotenv");
+const mongoose=require("mongoose");
+const authRoute=require("./roots/auth");
+
+dotenv.config();
+mongoose.set("strictQuery", false);
+app.use(express.json());
+
+mongoose.connect(process.env.MONGO_URL,  {
+  // useNewUrlParser: true,
+  useUnifiedTopology: true,
+  // useCreateIndex: true,
+  // useFindAndModify:true
+}).then(console.log("Connected to moongodb")).catch((err)=>console.log(err));
+
+app.use("/api/auth",authRoute);
+app.listen("3000",()=>{
+    console.log("running");
+})

@@ -1,0 +1,63 @@
+now if we see that our password is visible to everyone in the cloud atlas terminal. so technically we dont want that to happen to make that stop we need to encrypt the password in some way. so to do that we are going to add a new libray called the "bcrypt"
+
+this is going to convert the password to a hash code hence is unreadable.
+
+so to do so download the module a require it in the auth.js file and write the following line to generate the hashcode:
+
+const salt =await bcrypt.genSalt(10);
+const hashedPass=await bcrypt.hash(req.body.password,salt);
+
+now the new password field is hashedPass so we dont need to read the password from the webpage rather we can have this like:
+
+  try {
+
+        const salt =await bcrypt.genSalt(10);
+        const hashedPass=await bcrypt.hash(req.body.password,salt);
+        
+        const newUser = new User({
+        username: req.body.username,
+        email: req.body.email,
+        password:hashedPass,
+      });
+
+Till now the full code of auth.js:
+const router=require("express").Router();
+const User =require("../models/User");
+const bcrypt=require("bcrypt");
+
+//register
+router.post("/register", async (req, res) => {
+    try {
+
+        const salt =await bcrypt.genSalt(10);
+        const hashedPass=await bcrypt.hash(req.body.password,salt);
+        
+        const newUser = new User({
+        username: req.body.username,
+        email: req.body.email,
+        password:hashedPass,
+      });
+  
+      const user = await newUser.save();
+      res.status(200).json(user);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  });
+
+//login
+
+module.exports = router
+
+
+**************************************************************
+
+till now we need something to post or to register a new user to the database . 
+
+now we need to take care of login a existing user to the page.
+
+we can do that by taking the input of username and the password from the webpage and comparing it with the data from the database.
+
+to find the data on the db we use findone and to campare the data on the db we use .compare mathod with the user variable.
+
+so to do so first we using the router we are going to create a post method for /login and then running a async method with the req and res and inisde that same try and catch method to catch any method in the system.

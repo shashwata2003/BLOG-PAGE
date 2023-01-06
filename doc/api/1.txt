@@ -1,0 +1,38 @@
+So day one we started to make this blog page api in which we can add delete write and edit blog pages, with spsific user id and password.
+
+So first start by downloading the following modules:
+express,dotenv(for proction of password in the database),mongooseand multer.
+
+and then run the command init npm to run the node server. also install nodemon for live server reading.
+
+now create a index.js file in which call the modules like:
+
+const express=require("express");
+const app=express();
+const dotenv=require("dotenv");
+const mongoose=require("mongoose");
+
+now list a port no. to listen the server in the browser like:
+
+app.listen("3000",()=>{
+    console.log("running");
+})
+
+
+nowto encrypt our database we need to create a .env file in which we will create a variable called the MONGO_URL which will store the url of your database which we need to keep private.
+like:
+
+MONGO_URL=mongodb+srv://Shashwata2003:Shashwata2003@cluster0.k3gqf0w.mongodb.net/blog?retryWrites=true&w=majority
+
+next in the index.js firl call the dotenv file to using require and the run the config property of dotenv like:
+
+dotenv.config();
+
+
+Not to run the mongoose we will copy the following lines of code form the documention of mongoose like:
+
+mongoose.set("strictQuery", false);
+mongoose.connect(process.env.MONGO_URL, () => {
+  console.log("Connected to MongoDB");
+}).then(console.log("Connected")).catch(err=>console.log(e));
+
