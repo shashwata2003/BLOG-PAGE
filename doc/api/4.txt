@@ -60,4 +60,82 @@ we can do that by taking the input of username and the password from the webpage
 
 to find the data on the db we use findone and to campare the data on the db we use .compare mathod with the user variable.
 
-so to do so first we using the router we are going to create a post method for /login and then running a async method with the req and res and inisde that same try and catch method to catch any method in the system.
+so to do so first we using the router we are going to create a post method for /login and then running a async method with the req and res and inisde that same try and catch method to catch any method in the system. if error is catch then send :
+
+res.status(500).json(err);
+
+if no then create a user varible to store the details of the user that is enter by the user in the webpage of login we can do this by using the .findone method like:
+
+ const user= await User.findOne({
+      username:req.body.username
+    })
+
+now if the user is not found then send a error status like:
+
+ !user && res.status(400).json("wrong user");
+
+now after we found the user we need to find that the password of that user is correct or not. so do so we need to validate the users password and we can do that by comparing the password entered in the page with the password in the db.
+ 
+like:
+const validate= await bcrypt.compare(req.body.password,user.password)
+
+and if not found then send the error like:
+
+   !validate && res.status(400).json("wrong user");
+
+and if every thing run prefectly then send the 200 cod as a success code.
+
+res.status(200).json(user);
+
+
+now one last thing is that we the server send a response back to use it also sends the password with it that we dont want so
+to element that we need to:
+
+FUll code of auth after the login part:
+
+const router=require("express").Router();
+const User =require("../models/User");
+const bcrypt=require("bcrypt");
+
+//register
+router.post("/register", async (req, res) => {
+    try {
+
+        const salt =await bcrypt.genSalt(10);
+        const hashedPass=await bcrypt.hash(req.body.password,salt);
+
+        const newUser = new User({
+        username: req.body.username,
+        email: req.body.email,
+        password:hashedPass,
+      });
+  
+      const user = await newUser.save();
+      res.status(200).json(user);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  });
+
+//login
+router.post("/login",async(req,res)=>{
+  try{
+    const user= await User.findOne({
+      username:req.body.username
+    })
+    !user && res.status(400).json("wrong user");
+
+    const validate= await bcrypt.compare(req.body.password,user.password)
+    !validate && res.status(400).json("wrong user");
+
+    res.status(200).json(user);
+  }
+  catch{
+    res.status(500).json(err);
+  }
+});
+
+module.exports = router
+
+
+**************************************************************
