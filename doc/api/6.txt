@@ -1,0 +1,289 @@
+now we need to create the route for the post so that we can post update and find the post in the db.
+
+now first we need to call all the required module to the post.js route. that are express router post model and json of express.
+like:
+
+const router=require("express").Router();
+const Post =require("../models/Post");
+const { json } = require("express");
+
+now first to create a new post we need to create a router with the post method
+now to create a new to post we need to read from the body of the page hence we need to use params from the body. Also we need to use the Post model to create a new post.
+then again create the try and catch rubics with the error statement in the catch and inside the try method we need to create a variable we need create a savepost and save the new post which is reading from the body.
+and after all this send the status 200 and the jsoned savedpost.
+like:
+
+router.post("/", async (req, res) => {
+    const newPost=new Post(req.body);
+    try{
+        const savedPost=newPost.save();
+        res.status(200).json(savedPost);
+    }catch(err){
+        res.status(500).json(err);
+    }
+  });
+
+now to update a post we need to use the put method of the router with the id of the post as the argument.
+so first create variable consisting the post by using findbyID method with the id that is present in the body(using params).
+
+then check the username is same or not if same then run a the secound round of try and catch .
+inside the try create a varible updated post which is going to update the post using the id of the post. also to find the post we need to use the method findByidandupdate. now send the id as one of the argument andthe set method as the other argument(this is the updated body of the post). after all this send teh res as the 200 and if any err the 500 else not the user respose.
+like:
+
+router.put("/:id", async (req, res) => {
+    try{
+        const post=await Post.findById(req.params.id);
+        if(post.username===req.body.username){
+            try{
+                const updatedPost=await Post.findByIdAndUpdate(
+                    req.params.id,
+                    {
+                        $set:req.body,
+                    },{new:true}
+                );
+                res.status(200).json(updatedPost);
+            }catch(err){
+                res.status(500).json(err);
+            }
+        }else{
+            res.status(401).json("error  not the correct the user")
+        }
+        
+    }catch(err){
+        res.status(500).json(err);
+    }
+  });
+
+
+now to delete a post we need to create a router with delete method with the if of the post as the argument. 
+now create a post which we can findById using req.param.id means reading it form the body.
+
+now we can delete if teh username is same in both the body and the db.
+
+then run  try method to run the post.delete();
+and then send the 200 stt code if it is successful and if not the send statuscodde 500 or if the usernmae doesnot match then send the message not the user.
+like:
+
+ router.delete("/:id", async (req, res) => {
+    try{
+        const post=await Post.findById(req.params.id);
+        if(post.username===req.body.username){
+            try{
+                await post.delete();
+                res.status(200).json("post deleted");
+            }catch(err){
+                res.status(500).json(err);
+            }
+        }else{
+            res.status(401).json("error  not the correct the user")
+        }
+        
+    }catch(err){
+        res.status(500).json(err);
+    }
+  });
+
+now to get all the post with the help of the username and the category we need to create variables of username and the categoryname taking them as the query from the url of the link.
+ now run the try and catch and let a variable called the post which we can find using the find method of the username and the categoryname or else send all the post
+
+ like:
+ router.get("/", async (req, res) => {
+    const username=req.query.user;
+    const catname=req.query.cat;
+
+    try{
+        let posts;
+        if(username){
+            posts=await Post.find({username});
+        }else if(catname){
+            posts=await Post.find({categories:{
+                $in:[catname]
+            }});
+        }else{
+            posts=await Post.find();
+        }
+        res.status(200).json(posts);
+        
+        
+        
+    }catch(err){
+        res.status(500).json(err);
+    }
+  });
+
+  full code of the post.js:
+  const router=require("express").Router();
+const Post =require("../models/Post");
+const { json } = require("express");
+
+//Create new post
+router.post("/", async (req, res) => {
+    const newPost=new Post(req.body);
+    try{
+        const savedPost=newPost.save();
+        res.status(200).json(savedPost);
+    }catch(err){
+        res.status(500).json(err);
+    }
+  });
+
+//update post 
+router.put("/:id", async (req, res) => {
+    try{
+        const post=await Post.findById(req.params.id);
+        if(post.username===req.body.username){
+            try{
+                const updatedPost=await Post.findByIdAndUpdate(
+                    req.params.id,
+                    {
+                        $set:req.body,
+                    },{new:true}
+                );
+                res.status(200).json(updatedPost);
+            }catch(err){
+                res.status(500).json(err);
+            }
+        }else{
+            res.status(401).json("error  not the correct the user")
+        }
+        
+    }catch(err){
+        res.status(500).json(err);
+    }
+  });
+
+  //delete post 
+  router.delete("/:id", async (req, res) => {
+    try{
+        const post=await Post.findById(req.params.id);
+        if(post.username===req.body.username){
+            try{
+                await post.delete();
+                res.status(200).json("post deleted");
+            }catch(err){
+                res.status(500).json(err);
+            }
+        }else{
+            res.status(401).json("error  not the correct the user")
+        }
+        
+    }catch(err){
+        res.status(500).json(err);
+    }
+  });
+
+
+  // get post 
+  router.get("/:id", async (req, res) => {
+    try{
+        const post=await Post.findById(req.params.id);
+        
+        res.status(200);json(post);
+        
+    }catch(err){
+        res.status(500).json(err);
+    }
+  });
+
+//get all post
+router.get("/", async (req, res) => {
+    const username=req.query.user;
+    const catname=req.query.cat;
+
+    try{
+        let posts;
+        if(username){
+            posts=await Post.find({username});
+        }else if(catname){
+            posts=await Post.find({categories:{
+                $in:[catname]
+            }});
+        }else{
+            posts=await Post.find();
+        }
+        res.status(200).json(posts);
+        
+        
+        
+    }catch(err){
+        res.status(500).json(err);
+    }
+  });
+module.exports = router
+
+
+**************************************************************
+now lastly we need to take of the categories and that is easy 
+
+so we jsut need a post method of teh router like:
+router.post("/",async(req,res)=>{
+    const newcat=new Categories(req.body);
+    try{
+        const savedCat=await newcat.save();
+        res.status(200).json(savedCat);
+    }catch(err){
+        res.status(500).json(err);
+    }
+})
+
+
+and the to get all the categories we can do this.
+router.get("/",async(req,res)=>{
+    
+    try{
+        const cats= await Categories.find();
+        res.status(500).json(cats);
+    }catch(err){
+        res.status(500).json(err);
+    }
+})
+module.exports = router
+
+full code of the categories.js:
+
+const router=require("express").Router();
+const  Categories=require("../models/Category");
+const { json } = require("express");
+
+//Create new category
+
+router.post("/",async(req,res)=>{
+    const newcat=new Categories(req.body);
+    try{
+        const savedCat=await newcat.save();
+        res.status(200).json(savedCat);
+    }catch(err){
+        res.status(500).json(err);
+    }
+})
+
+// get all Categories
+router.get("/",async(req,res)=>{
+    
+    try{
+        const cats= await Categories.find();
+        res.status(500).json(cats);
+    }catch(err){
+        res.status(500).json(err);
+    }
+})
+module.exports = router
+
+
+************************************************************
+now to get the images in the blog we need to add something in the index.js page like:
+we need to install a module multer and require it in the index.js file. and like:
+const storage = multer.diskStorage({
+  destination:(req,file,cb)=>{
+    cb(null,"images")
+  },filename:(req,file,cb)=> {
+    cb(null,"hello.jpeg");
+  },
+});
+
+const upload=multer({storage:storage});
+app.post("api/upload",upload.single("file",(req,res)=>{
+  res.status(200).json("file huploaded");
+}));
+
+we need to create a folder in the api folder as the name of images in which all the images will get stored after they are uploaded to the server.

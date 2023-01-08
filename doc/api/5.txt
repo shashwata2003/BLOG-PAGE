@@ -1,2 +1,267 @@
 now we are going to start with the user root. h
 here we are going to update the user info ro will able to delete the user info.
+
+so first we need to update the user data we can do that by first finding that user in the db and then updateing it in the db to.
+
+so first we need to create router for the the link:
+/:id and we are going to use the put method.
+
+SO PUT request is used to sedn a request to update and delete a data in a server.
+
+so now we need to match the user id of the that is present in the link and that whcih is in the database.
+
+so we will run if condition on the entire thing before we start.
+
+now we need to check for the password which is hashed in the db. so first we check the password that the user entered. 
+now after that we will hash it using the bcrypt module.
+
+we can do that by creating a salt by using gensalt method for 10 nad the changing the req.body.password to the hash password using the hash method. like:
+
+ if(req.body.password){
+      const salt = await bcrypt.genSalt(10);
+      req.body.password=await bcrypt.hash(req.body.password,salt);
+    }
+
+now after all this we can start the updating process.
+to update we have a method in put request called the findbyIdAndUpdate. this find the id and updates it accordingly.
+ like:
+
+  try {
+    const updatedUser= await User.findByIdAndUpdate(req.params.id,{
+      $set:req.body,
+    },{new:true});
+    res.status(200).json(updatedUser);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+
+and also if the userid doesnot match we need to send a error message like:
+
+ res.status(401).json("wrong user");
+**********************
+ FUll code till updating in user.js:
+
+ const router=require("express").Router();
+const User =require("../models/User");
+const bcrypt =require("bcrypt");
+
+//updating the user
+router.put("/:id", async (req, res) => {
+  if(req.body.userId === req.params.id){
+    if(req.body.password){
+      const salt = await bcrypt.genSalt(10);
+      req.body.password=await bcrypt.hash(req.body.password,salt);
+    }
+   
+  try {
+    const updatedUser= await User.findByIdAndUpdate(req.params.id,{
+      $set:req.body,
+    },{new:true});
+    res.status(200).json(updatedUser);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  } else{
+    res.status(401).json("wrong user");
+  }
+  });
+
+//Deleting the user
+
+module.exports = router
+
+
+***********************************************************
+now we need to manage the deleting of the user in the server. and if we delete the user then we need to delete all the posts that the user made on the server.
+
+so to do so we will create a router method with the method delete for /:id. followed by async function with req and res
+
+now here also we need to check the user id if it match then only we will delete the user else we will send a error saying wrong user.
+
+here we are going to need two try and catch statment as first we need to delete all the post of that user and then delete the user.
+
+so to do that first we will take the user data from the db like:
+const user=await User.findById(req.params.id);
+
+and then run another try method to delete the post using post.deletemany with the argument of the username such that it know which users post to delete. like:
+
+ await Post.deleteMany({username:user.username});
+
+ then run the deletebyidanddelete with the argument of the id entered like:
+
+  await User.findByIdAndDelete(req.params.id);
+
+now send the done signal to the server. and manage the catch block.
+
+like:
+
+res.status(200).json("user is deleted");
+        } catch (err) {
+          res.status(500).json(err);
+        }
+
+like:
+
+
+
+//Deleting the user
+router.delete("/:id", async (req, res) => {
+  if(req.body.userId === req.params.id){
+    try{
+      const user=await User.findById(req.params.id);
+      try {
+        await Post.deleteMany({username:user.username});
+        await User.findByIdAndDelete(req.params.id);
+        res.status(200).json("user is deleted");
+        } catch (err) {
+          res.status(500).json(err);
+        }
+    }catch(err){
+
+    }
+   
+  
+  } else{
+    res.status(401).json("wrong user");
+  }
+  });
+
+
+  Full code after the delete method:
+
+  const router=require("express").Router();
+const User =require("../models/User");
+const bcrypt =require("bcrypt");
+const Post =require("../models/Post")
+
+//updating the user
+router.put("/:id", async (req, res) => {
+  if(req.body.userId === req.params.id){
+    if(req.body.password){
+      const salt = await bcrypt.genSalt(10);
+      req.body.password=await bcrypt.hash(req.body.password,salt);
+    }
+   
+  try {
+    const updatedUser= await User.findByIdAndUpdate(req.params.id,{
+      $set:req.body,
+    },{new:true});
+    res.status(200).json(updatedUser);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  } else{
+    res.status(401).json("wrong user");
+  }
+  });
+
+//Deleting the user
+router.delete("/:id", async (req, res) => {
+  if(req.body.userId === req.params.id){
+    try{
+      const user=await User.findById(req.params.id);
+      try {
+        await Post.deleteMany({username:user.username});
+        await User.findByIdAndDelete(req.params.id);
+        res.status(200).json("user is deleted");
+        } catch (err) {
+          res.status(500).json(err);
+        }
+    }catch(err){
+
+    }
+   
+  
+  } else{
+    res.status(401).json("wrong user");
+  }
+  });
+module.exports = router
+
+
+**********************************************************
+now the last part of the user route is to create a get route which will send back  the data of the data form the db.
+
+so to do so we need a another router with a get method with the argument /:id and a async fnction with req and res argument.
+
+now we need to create try and catch method. 
+in the try method create the user variable with the help of findById function of User(the variable imported form the models users) module like:
+
+ const user=await User.findById(req.params.id);
+
+ now when we fetch the information of the user we dont want the password to be visible in the fetched data. so we use the user._doc method to hide like this:
+
+ const {password,...others}=user._doc;
+
+ hence after all this send the status code to be 200 and the send the module others to the webpage.
+ and also catch if any error pops up then send status code to be 500. like:
+
+   router.get("/:id",async(req,res)=>{
+    try{
+      const user=await User.findById(req.params.id);
+      const {password,...others}=user._doc;
+      res.status(200).json(others);
+    }catch(err){
+      res.status(500).json(err);
+    }
+  });
+
+FULl code of user.js:
+
+const router=require("express").Router();
+const User =require("../models/User");
+const bcrypt =require("bcrypt");
+const Post =require("../models/Post")
+
+//updating the user
+router.put("/:id", async (req, res) => {
+  if(req.body.userId === req.params.id){
+    if(req.body.password){
+      const salt = await bcrypt.genSalt(10);
+      req.body.password=await bcrypt.hash(req.body.password,salt);
+    }
+   
+  try {
+    const updatedUser= await User.findByIdAndUpdate(req.params.id,{
+      $set:req.body,
+    },{new:true});
+    res.status(200).json(updatedUser);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  } else{
+    res.status(401).json("wrong user");
+  }
+  });
+
+//Deleting the user
+router.delete("/:id", async (req, res) => {
+  if(req.body.userId === req.params.id){
+    try{
+      const user=await User.findById(req.params.id);
+      try {
+        await Post.deleteMany({username:user.username});
+        await User.findByIdAndDelete(req.params.id);
+        res.status(200).json("user is deleted");
+        } catch (err) {
+          res.status(500).json(err);
+        }
+    }catch(err){
+
+    }
+    } else{
+    res.status(401).json("wrong user");
+  }
+  });
+
+  //get user
+  router.get("/:id",async(req,res)=>{
+    try{
+      const user=await User.findById(req.params.id);
+      const {password,...others}=user._doc;
+      res.status(200).json(others);
+    }catch(err){
+      res.status(500).json(err);
+    }
+  });
+module.exports = router
