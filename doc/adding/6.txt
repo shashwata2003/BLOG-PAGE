@@ -1,0 +1,25 @@
+now after creating the context api we need to merge it to the login page hence in the Login.js file
+
+first import the useContext and the useRef modules form the react and also the link from the react-router-dom
+
+next call the Context.js 
+
+now create the varibles called the UserRef and passwordRef using the useRef function this function helps in validaing the passowrd and the username entered in the login page.
+
+now as we have create multiple states in the Context.js file we need to call each on of them such that it does it job like fetching and the error status and all.
+
+SO intially we need to dispatch LOGIN_START. such that it takes the username and the password . also use the axios post method over the auth/login next will be LOGIN_SUCCESS if the password matchs and send the data as the payload to update the interface
+
+and if a error catch then send LOGIN_FAILURE
+
+
+
+now in the FOrm we need to add the reference for the password and the username
+hence will use the 
+
+ ref={passwordRef}
+   ref={userRef}
+
+and the button add the disable {isFecthing}
+
+this disable doesnot let the user to click when the data is fetching in the browser.

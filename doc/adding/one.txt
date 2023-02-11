@@ -1,0 +1,155 @@
+SO now we are trying to merge both the api and the ui. so do so we need to render the data from the mongodb and show it in the page according to the correct ids.
+
+also we need to change the proxy to the link of the api running linke that is :
+http://localhost:5000/api
+
+like:
+,"proxy":"http://localhost:5000/api"
+
+at end.
+
+so first we will take care of the homepage. on the homepage  we are planning to post all the posts that are present on the database.
+
+so first open the homepage component called the Homepage.jsx .
+and install axios (to make HTTP requests from node. js or XMLHttpRequests from the browser)
+
+now create a state called the posts and a set function called the setPosts
+
+now using the useEffect method create a function to fetch the posts from the db. this function should be a async function(An async function will return a different reference, whereas Promise.resolve returns the same reference if the given value is a promise.).
+
+now inside the variable res get all the posts from the db adn useing the setpost method set the post to the data that we got.
+like:
+
+ const[posts,setPosts]=useState([]);
+  useEffect(()=>{
+    const fetchPost = async()=>{
+      const res = await axios.get("/posts")
+      // console.log(res);
+      setPosts(res.data)
+    }
+    fetchPost()
+
+  },[])
+
+now we need to map this value to the post compounent of the page which we can do that by like:
+
+<Posts  posts={posts}/>
+
+now in the Posts.jsx we will map the value form the db to the page info like:
+
+export default function Posts({ posts }) {
+  return (
+    <div className="posts">
+    {posts.map(p=>(
+      <Post post={p}/>
+    ))}
+     
+      
+    </div>
+  );
+}
+
+now in the Post.jsx page we will change the title form the hardcoded text to the dynamic form like:
+
+ </div>
+      <p className="postDesc">
+        {post.desc}
+      </p>
+    </div>
+
+and the others
+also we need to add post as the argument in the map like:
+
+export default function Post({post ,img}) {
+
+full code of POst.jsx:
+import { Link } from "react-router-dom";
+import "./post.css";
+
+
+export default function Post({post ,img}) {
+  return (
+    <div className="post">
+    {post.photo && (
+      <img
+        className="postImg"
+        src={post.photo}
+        alt=""
+      />)}
+      <div className="postInfo">
+        <div className="postCats">
+         {post.categories.map(c=>(
+          <span className="postCat">{c.name}</span>
+         ))}
+          
+        </div>
+
+        <Link to={`post/${post._id}`} className="link">
+        <span className="postTitle">
+          
+            {post.title}
+         
+        </span>
+        </Link>
+        
+        <hr />
+        <span className="postDate">{new Date(post.createdAt).toDateString()}</span>
+      </div>
+      <p className="postDesc">
+        {post.desc}
+      </p>
+    </div>
+  );
+}
+
+Full code of POsts.jsx:
+
+import Post from "../post/Post";
+import "./posts.css";
+
+export default function Posts({ posts }) {
+  return (
+    <div className="posts">
+    {posts.map(p=>(
+      <Post post={p}/>
+    ))}
+     
+      
+    </div>
+  );
+}
+
+Full code of Homepage.ksx:
+
+import { useEffect, useState } from "react";
+import { useLocation } from "react-router";
+import Header from "../../components/header/Header";
+import Posts from "../../components/posts/Posts";
+import Sidebar from "../../components/sidebar/Sidebar";
+import "./homepage.css";
+import axios from "axios";
+
+export default function Homepage() {
+  const location = useLocation();
+  console.log(location);
+  const[posts,setPosts]=useState([]);
+  useEffect(()=>{
+    const fetchPost = async()=>{
+      const res = await axios.get("/posts")
+      // console.log(res);
+      setPosts(res.data)
+    }
+    fetchPost()
+
+  },[])
+  return (
+    <>
+      <Header />
+      <div className="home">
+        <Posts  posts={posts}/>
+        <Sidebar />
+      </div>
+    </>
+  );
+}
+

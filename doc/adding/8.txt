@@ -1,0 +1,82 @@
+Now to handle the write page we need to take of the the image , description and the title.
+
+hence in the write.jsx file 
+
+import all the important modules like the axios Context useContext and the useState. like:
+
+import { useContext, useState } from "react";
+import "./write.css";
+import axios from "axios";
+import { Context } from "../../context/Context";
+
+now we need to create multiple hooks to set the values of the title, desc and the image with is called the file here.
+
+now in the publish button add the tag onclick and run the function handleSubmit.
+
+now create a async function such that it preventDeault and create a newPost with the username , title and the desc.
+
+now if there is a file run this condition:
+
+  const data =new FormData();
+      const filename = Date.now() + file.name;
+      data.append("name", filename);
+      data.append("file", file);
+      newPost.photo = filename;
+      try {
+        await axios.post("/upload", data);
+      } catch (err) {}
+
+now after this run a pair of try and catch like:
+
+try {
+      const res = await axios.post("/posts", newPost);
+      window.location.replace("/post/" + res.data._id);
+    } catch (err) {}
+
+whole code of the handleSubmit:
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const newPost = {
+      username: user.username,
+      title,
+      desc,
+    };
+    if (file) {
+      const data =new FormData();
+      const filename = Date.now() + file.name;
+      data.append("name", filename);
+      data.append("file", file);
+      newPost.photo = filename;
+      try {
+        await axios.post("/upload", data);
+      } catch (err) {
+        console.log(err)
+      }
+    }
+    try {
+      const res = await axios.post("/posts", newPost);
+      window.location.replace("/post/" + res.data._id);
+    } catch (err) {}
+  };
+
+
+now on change of the image we need to update the image. hence to do so we create a onchange tag in the image input tag like:
+
+onChange={(e) => setFile(e.target.files[0])}
+
+
+now to the same for the decs and the title such that we can update the title and the desc
+
+ onChange={e=>setTitle(e.target.value)}
+ onChange={e=>setDesc(e.target.value)}
+
+now we need to convert the image into the url form such that we can acces that in the react so to do that in api in Post.jsx file:
+
+create a variable PF with the link:
+
+  const PF = "http://localhost:5000/images/";
+
+now add this url to the begining of the img name like:
+
+   {post.photo && <img className="postImg" src={PF+post.photo} alt="" />}

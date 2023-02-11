@@ -1,0 +1,105 @@
+so now we are taking care of the register tab in which we are going to add a new user to the db and also give asscess to that user to change and edit his info and post.
+
+so in the Register.jsx page create multiple hooks for the username email password and also for the error. like:
+
+const[username,setUsername]=useState("");
+  const[email,setEmail]=useState("");
+  const[password,setPassword]=useState("");
+  const[error,setError]=useState(false);
+
+then add a attribute a to the form tag called the onSubmit which will run a function called the handleSubit whne the form is submitted and add the type attribute to the button like:
+
+<form className="registerForm" onSubmit={handleSubmit}>
+
+<button className="registerButton" type="submit">Register</button>
+
+now we need to define the handle submit option to do so we will create async fuunction called the handleSubmit like:
+
+  const handleSubmit= async (e)=>{
+    e.preventDefault();
+    setError(false);
+    try{
+    const res= await axios.post("/auth/register",{
+      username,
+      email,
+      password
+    });
+    res.data && window.location.replace("/login"); 
+  }catch(err){
+    setError(true);
+  }
+  };
+
+e.preventDefault() is used such that the page doesnot reload after the submit is pressed and the hook error is set to false initially and is turned to true when the err is catch
+the run try and catch 
+
+so to registerwe need to go throught auth/register api model nad the attribute are the username,
+      email,
+      password
+
+      and  if there is a coorect input then we will reload back to the login page using the location.replace method 
+
+also we need to keep a track of the change so in every entry like username email and password add a tag called the onchange which will set the following data to the entered values uning the target.value method like:
+
+<label>Username</label>
+        <input className="registerInput" type="text" placeholder="Enter your username..." 
+        onChange={e=>setUsername(e.target.value)} />
+        <label>Email</label>
+        <input className="registerInput" type="text" placeholder="Enter your email..." 
+          onChange={e=>setEmail(e.target.value)}
+        />
+        <label>Password</label>
+        <input className="registerInput" type="password" placeholder="Enter your password..." 
+          onChange={e=>setPassword(e.target.value)}
+
+
+full code of the register.jsx:
+
+import { useState } from "react"
+import "./register.css"
+import axios from "axios";
+
+export default function Register() {
+  const[username,setUsername]=useState("");
+  const[email,setEmail]=useState("");
+  const[password,setPassword]=useState("");
+  const[error,setError]=useState(false);
+
+  const handleSubmit= async (e)=>{
+    e.preventDefault();
+    setError(false);
+    try{
+    const res= await axios.post("/auth/register",{
+      username,
+      email,
+      password
+    });
+    res.data && window.location.replace("/login"); 
+  }catch(err){
+    setError(true);
+  }
+  };
+    return (
+        <div className="register">
+      <span className="registerTitle">Register</span>
+      <form className="registerForm" onSubmit={handleSubmit}>
+        <label>Username</label>
+        <input className="registerInput" type="text" placeholder="Enter your username..." 
+        onChange={e=>setUsername(e.target.value)} />
+        <label>Email</label>
+        <input className="registerInput" type="text" placeholder="Enter your email..." 
+          onChange={e=>setEmail(e.target.value)}
+        />
+        <label>Password</label>
+        <input className="registerInput" type="password" placeholder="Enter your password..." 
+          onChange={e=>setPassword(e.target.value)}
+        />
+        <button className="registerButton" type="submit">Register</button>
+      </form>
+        <button className="registerLoginButton">Login</button>
+    { error&& <span style={{color:"red" ,marginTop:"10px"}}>Something went wrong</span>}
+    </div>
+
+    )
+}
+

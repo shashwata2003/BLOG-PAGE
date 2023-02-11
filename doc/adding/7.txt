@@ -1,0 +1,44 @@
+so when we successfull logined in to the page that means that the username and the password matchs with the dbs data and the variable user returns the data of the user that is logined.
+
+hence we need to use this data in the website accordingly.
+hence we need to store this data in the local storage or the cache memory of the page.
+
+now to use that local storage we need use a hook called the useEffect hook.
+inside it we are going to use the localStorage method and we will setItem using the user deatil and then converting it to string using the stringify method
+
+also this hook run every time when the user is change hence user.state changes
+
+useEffect(()=>{
+        localStorage.setItem("user",JSON.stringify(state.user))
+     },[state.user])
+
+now in the INITIAL_STATE we need to create boolean condition such that it sets the user that logined in or null like:
+
+const INITIAL_STATE ={
+    user:JSON.parse(localStorage.getItem("user")) || null,
+    isFetching:false,
+    error:false
+};
+
+now when the user is logged in we need to change the interface accordingly hince we need change the user varible in both app.js and top bar to the dynamic values like:
+
+
+const {user}=useContext(Context)
+
+now we will do the logout process similar to this:
+
+So when we log out we need to react back to the login page and we should get back the login and regsiter option on the topbar. 
+
+hence in the topbar.jsx file in the li of logout create a onclick tag which will run a function handleLogout when the button is clicked.
+else it will show the info of current loged in user.
+
+handleLogout is like:
+
+ const handleLogout=()=>{
+    dispatch({
+      type:"LOGOUT"
+    });
+  }
+
+now we we will take of the write page.
+

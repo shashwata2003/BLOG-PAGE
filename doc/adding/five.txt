@@ -1,0 +1,27 @@
+context api:state management tool so when we login we want the user information.
+
+So now we need figure out how to use the login page. So in a login page we have three function
+i) fetching the data 
+ii) error when the data doesnot match form the db
+iii) success message when the data match the db.
+
+so to do this we need a api called the context api whic does this task one by one
+
+hence create a folder called the context 
+inside that create three js files called the Context.js Reducer.js and the Actions.js 
+
+the Context.js file contant the initial state of the login page and the it helps to create the context intially.
+
+the Actions.js file contains all the actions that are done by this api and the Reducer connects both of this pages.
+
+the Contect contains the the initail conditions of teh login page like:
+
+const INITIAL_STATE ={
+    user:null,
+    isFetching:false,
+    error:false
+};
+
+the detail of the context api is in the vedio:
+https://www.youtube.com/watch?v=pFHyZvVxce0&ab_channel=LamaDev
+57:00 min start

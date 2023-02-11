@@ -1,0 +1,103 @@
+so now we need to take the data of each post from the db and then show it to the page according to the id.
+
+so in the singlePost.jsx in the components folder
+
+so when we click on the post on the home page it takes us to that particular post which contains the id of that post on it. os we need to split that id form the url.
+so to that we need to import the module location from react-router-dom and also the axios module like:
+
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+
+now create location variale to use the location module and create a path variable to store the id using the spliting the url and taking just the id form it.
+like:
+
+const path = location.pathname.split("/")[2];
+  // console.log(path);
+  const[posts,setPosts]=useState({});
+
+now create a hook called the post and the function setPost to change a update the value of the post .
+
+then under the hook use effect create a function called the getpost hich is async function to take out the data form the db using the axios like:
+
+useEffect(() => {
+    const getPost = async ()=>{
+      const res = await axios.get("/posts/" + path);
+      // console.log(res);
+      setPosts(res.data);
+    };
+    getPost()
+  }, [path])
+
+  also the useEffect re runs after the path is changed.
+
+now using the posts variable put the details form the db like the home page like:
+for img:
+
+{posts.photo && ( 
+          <img
+          className="singlePostImg"
+          src={posts.photo}
+          alt=""
+        />
+        )}
+
+
+full code of SinglePost.jsx
+
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import "./singlePost.css";
+
+export default function SinglePost() {
+  const location = useLocation()
+  const path = location.pathname.split("/")[2];
+  // console.log(path);
+  const[posts,setPosts]=useState({});
+  
+  useEffect(() => {
+    const getPost = async ()=>{
+      const res = await axios.get("/posts/" + path);
+      // console.log(res);
+      setPosts(res.data);
+    };
+    getPost()
+  }, [path])
+
+  return (
+    <div className="singlePost">
+      <div className="singlePostWrapper">
+        {posts.photo && ( 
+          <img
+          className="singlePostImg"
+          src={posts.photo}
+          alt=""
+        />
+        )}
+       
+        <h1 className="singlePostTitle">
+          {posts.title}
+          <div className="singlePostEdit">
+            <i className="singlePostIcon far fa-edit"></i>
+            <i className="singlePostIcon far fa-trash-alt"></i>
+          </div>
+        </h1>
+        <div className="singlePostInfo">
+          <span>
+            Author:
+            <b className="singlePostAuthor">
+              
+                {posts.username}
+             
+            </b>
+          </span>
+          <span className="singlePostDate">{new Date(posts.createdAt).toDateString( )}</span>
+        </div>
+        <p className="singlePostDesc">
+          {posts.desc}
+        </p>
+      </div>
+    </div>
+  );
+}

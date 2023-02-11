@@ -8,10 +8,12 @@ const userRoute=require("./roots/user");
 const postRoute=require("./roots/post");
 const categoriesRoute=require("./roots/categories");
 const multer=require("multer");
+const path=require("path");
 
 dotenv.config();
 mongoose.set("strictQuery", false);
 app.use(express.json());
+app.use("images",express.static(path.join(__dirname,"images")));
 
 mongoose.connect(process.env.MONGO_URL,  {
   // useNewUrlParser: true,
@@ -41,6 +43,6 @@ app.use("/api/categories",categoriesRoute);
 
 
 
-app.listen("3000",()=>{
+app.listen("5000",()=>{
     console.log("running");
 })

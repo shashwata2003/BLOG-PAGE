@@ -1,0 +1,40 @@
+now after rendering the data form the db of a single post now we need to take care of the search attribute. Which means that we will able to sort the queue with the username and CATEGORIES.
+
+so in the homepage.js create a search variable with the useLocation function and add that to the /post like of the render line of res like:
+
+const {search} = useLocation();
+ const res = await axios.get("/posts"+search)
+
+now the funcrtion should change when the search attribute is changed hence send the search variable as the argument. like:
+
+  const {search} = useLocation();
+  // console.log(location);
+  const[posts,setPosts]=useState([]);
+
+  useEffect(()=>{
+    const fetchPost =  async()=>{
+      const res = await axios.get("/posts"+search)
+      // console.log(res);
+      setPosts(res.data)
+    }
+    fetchPost()
+
+  },[search])
+
+now to the singlePost.jsx we need to link the name  of the author to the this search attributelike:
+
+ <Link to={`/?user=${posts.username}`} className="link">
+            <b className="singlePostAuthor">
+                {posts.username}
+            </b>
+            </Link>
+
+similarily we should be able to search with the help of CATEGORIES name so to do that we will link the CATEGORIES name to the search url in the home page.
+
+<Link  to={`/?cat=${c.name}`} className="link">
+            <li className="sidebarListItem">
+              {c.name}
+          </li>
+</Link>
+
+NOW we will take care of the write tab.
